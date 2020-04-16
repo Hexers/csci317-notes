@@ -1,0 +1,540 @@
+1. Open the layout and add a radio group that contains the three radio buttons.
+
+<RadioGroup
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/roundingRadioGroup"
+    android:layout_below="@+id/totalLabel"
+    android:layout_toRightOf="@+id/billAmountLabel">
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/roundNoneRadioButton"
+        android:checked="true"
+        android:text="@string/none"/>
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/roundTipRadioButton"
+        android:text="@string/tip"/>
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/roundTotalRadioButton"
+        android:text="@string/total"/>
+</RadioGroup>
+
+2. Open the class for the activity and modify the calculateAndDisplay method, so it uses the selected radio button to determine whether to round the tip, total, or nothing. To round the tip, you can use code like this:
+    2.1  tipAmount=StrictMath.round(billAmount * tipPercent);
+    2.2. totalAmount = billAmount+tipAmount;
+
+To round the total, you can use code like:
+    2.3. float tipNotRounded = billAmount * tipPercent;
+    2.4. totalAmount = StrictMath.round(billAmount + tipNotRounded);
+    2.5. tipAmount = totalAmount - billAmount
+    
+3. Open Java file and declared 3 other private variables for each radio button like:
+    private RadioButton roundNoneRadioButton;
+    private RadioButton roundTipRadioButton;
+    private RadioButton roundTotalRadioButton;
+    
+4. Write code to get references to each radio button widget
+roundNoneRadioButton = (RadioButton)findViewById(R.id.roundNoneRadioButton); 
+roundTipRadioButton = (RadioButton)findViewById(R.id.roundTipRadioButton);
+roundTotalRadioButton = (RadioButton)findViewById(R.id.roundTotalRadioButton); 
+
+5. modified calculateAndDisplay method
+// calculate tip and total
+float tipAmount = 0;
+float totalAmount = 0;
+
+if(roundNoneRadioButton.isChecked())
+{
+    tipAmount = billAmount * tipPercent;
+    totalAmount = billAmount + tipAmount;
+}
+else if(roundTipRadioButton.isChecked())
+{
+    tipAmount = StrictMath.round(billAmount * tipPercent);
+    totalAmount = billAmount+tipAmount;
+}
+else if(roundTotalRadioButton.isChecked())
+{
+    float tipNotRounded = billAmount * tipPercent;
+    totalAmount = StrictMath.round(billAmount + tipNotRounded);
+    tipAmount = totalAmount - billAmount;
+}
+5. Test your application. Note that the rounding is only displayed when you click the apply button
+6. When a user clicks on the + or - buttons, the application automatically selects the None radio button. To make this function, add the following statement to the onClick() method.
+   6.1 roundNoneRadioButton.setChecked(true)
+   
+
+Add a spinner
+7. Add a TextView widget and Spinner widget to teh layout, so the user can select the number of ways to split the bill. Before adding a spinner, open your string.xml and add the following code:
+    <string name="split_label">Split Bill?</string>
+<string-array name="split_array">
+    <item>No</item>
+    <item>2 ways</item>
+    <item>3 ways</item>
+    <item>4 ways</item>
+</string-array>
+
+<string name="split_amount_label">Per Person</string>
+<string name="split_amount">$0.00</string>
+
+8. Then, add the following code between the radio buttons and apply button:
+   <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/splitLabel"
+    android:layout_alignLeft="@+id/roundingLabel"
+    android:layout_below="@+id/roundingRadioGroup"
+    android:padding="10dp"
+    android:text="@string/split_label"
+    android:textSize="20sp"
+    android:textStyle="bold"/>
+<Spinner
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/splitSpinner"
+    android:layout_alignLeft="@+id/perPersonTextView"
+    android:layout_alignTop="@+id/splitLabel"/>
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/perPersonLabel"
+    android:layout_alignLeft="@+id/splitLabel"
+    android:layout_below="@+id/splitLabel"
+    android:text="@string/split_amount_label"
+    android:textSize="20dp"
+    android:padding="10dp"
+    android:textStyle="bold"/>
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/perPersonTextView"
+    android:layout_alignBaseline="@+id/perPersonLabel"
+    android:layout_alignLeft="@+id/roundingRadioGroup"
+    android:text="@string/split_amount"
+    android:padding="5dp"
+    android:textSize="20dp"/>
+    
+9. In the onCreate method, add the following code:
+    //set array adapter for a spinner
+ArrayAdapter<CharSequence>adapter=ArrayAdapter.createFromResource(
+        this, R.array.split_array, android.R.layout.simple_spinner_item);
+adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+splitSpinner.setAdapter(adapter);
+
+10. Define 3 private variables:
+    private Spinner splitSpinner;
+private TextView perPersonLabel;
+private TextView perPersonTextView;
+
+11. Add the following code to get references to the widgets:
+    splitSpinner = (Spinner)findViewById(R.id.splitSpinner);
+perPersonLabel = (TextView)findViewById(R.id.percentLabel);
+perPersonTextView = (TextView)findViewById(R.id.perPersonTextView); 
+
+
+12. Java File
+import java.text.NumberFormat;
+
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
+public class MainActivity extends Activity
+        implements OnEditorActionListener, OnClickListener {
+
+    // define variables for the widgets
+    private EditText billAmountEditText;
+    private TextView percentTextView;
+    private Button   percentUpButton;
+    private Button   percentDownButton;
+    private TextView tipTextView;
+    private TextView totalTextView;
+    private RadioButton roundNoneRadioButton;
+    private RadioButton roundTipRadioButton;
+    private RadioButton roundTotalRadioButton;
+    private Spinner splitSpinner;
+    private TextView perPersonLabel;
+    private TextView perPersonTextView;
+    private Button   applyButton;
+
+    // define the SharedPreferences object
+    private SharedPreferences savedValues;
+
+    // define instance variables that should be saved
+    private String billAmountString = "";
+    private float tipPercent = .15f;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // get references to the widgets
+        billAmountEditText = (EditText) findViewById(R.id.billAmountEditText);
+        percentTextView = (TextView) findViewById(R.id.percentTextView);
+        percentUpButton = (Button) findViewById(R.id.percentUpButton);
+        percentDownButton = (Button) findViewById(R.id.percentDownButton);
+        tipTextView = (TextView) findViewById(R.id.tipTextView);
+        totalTextView = (TextView) findViewById(R.id.totalTextView);
+        roundNoneRadioButton = (RadioButton)findViewById(R.id.roundNoneRadioButton);
+        roundTipRadioButton = (RadioButton)findViewById(R.id.roundTipRadioButton);
+        roundTotalRadioButton = (RadioButton)findViewById(R.id.roundTotalRadioButton);
+        splitSpinner = (Spinner)findViewById(R.id.splitSpinner);
+        perPersonLabel = (TextView)findViewById(R.id.percentLabel);
+        perPersonTextView = (TextView)findViewById(R.id.perPersonTextView);
+        applyButton = (Button) findViewById(R.id.applyButton);
+
+        //set array adapter for a spinner
+        ArrayAdapter<CharSequence>adapter=ArrayAdapter.createFromResource(
+                this, R.array.split_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        splitSpinner.setAdapter(adapter);
+        // set the listeners
+        billAmountEditText.setOnEditorActionListener(this);
+        percentUpButton.setOnClickListener(this);
+        percentDownButton.setOnClickListener(this);
+        applyButton.setOnClickListener(this);
+
+        // get SharedPreferences object
+        savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
+    }
+
+    @Override
+    public void onPause() {
+        // save the instance variables
+        Editor editor = savedValues.edit();
+        editor.putString("billAmountString", billAmountString);
+        editor.putFloat("tipPercent", tipPercent);
+        editor.commit();
+
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // get the instance variables
+        billAmountString = savedValues.getString("billAmountString", "");
+        tipPercent = savedValues.getFloat("tipPercent", 0.15f);
+
+        // set the bill amount on its widget
+        billAmountEditText.setText(billAmountString);
+
+        // calculate and display
+        calculateAndDisplay();
+    }
+
+    public void calculateAndDisplay() {
+
+        // get the bill amount
+        billAmountString = billAmountEditText.getText().toString();
+        float billAmount;
+        if (billAmountString.equals("")) {
+            billAmount = 0;
+        }
+        else {
+            billAmount = Float.parseFloat(billAmountString);
+        }
+
+        // calculate tip and total
+        float tipAmount = 0;
+        float totalAmount = 0;
+
+        if(roundNoneRadioButton.isChecked())
+        {
+            tipAmount = billAmount * tipPercent;
+            totalAmount = billAmount + tipAmount;
+        }
+        else if(roundTipRadioButton.isChecked())
+        {
+            tipAmount = StrictMath.round(billAmount * tipPercent);
+            totalAmount = billAmount+tipAmount;
+        }
+        else if(roundTotalRadioButton.isChecked())
+        {
+            float tipNotRounded = billAmount * tipPercent;
+            totalAmount = StrictMath.round(billAmount + tipNotRounded);
+            tipAmount = totalAmount - billAmount;
+        }
+
+
+        // display the other results with formatting
+        NumberFormat currency = NumberFormat.getCurrencyInstance();
+        tipTextView.setText(currency.format(tipAmount));
+        totalTextView.setText(currency.format(totalAmount));
+
+        NumberFormat percent = NumberFormat.getPercentInstance();
+        percentTextView.setText(percent.format(tipPercent));
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE ||
+                actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
+            calculateAndDisplay();
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.percentDownButton:
+                tipPercent = tipPercent - .01f;
+                calculateAndDisplay();
+                roundNoneRadioButton.setChecked(true);
+                break;
+            case R.id.percentUpButton:
+                tipPercent = tipPercent + .01f;
+                calculateAndDisplay();
+                roundNoneRadioButton.setChecked(true);
+                break;
+            case R.id.applyButton:
+                calculateAndDisplay();
+                break;
+        }
+    }
+}
+
+
+https://pastebin.com/raw/ffwyCCmt
+
+
+package com.example.assignment5_seed_application;
+
+import java.text.NumberFormat;
+
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
+public class MainActivity extends Activity
+        implements OnEditorActionListener, OnClickListener {
+
+    // define variables for the widgets
+    private EditText billAmountEditText;
+    private TextView percentTextView;
+    private Button   percentUpButton;
+    private Button   percentDownButton;
+    private TextView tipTextView;
+    private TextView totalTextView;
+    private RadioButton roundNoneRadioButton;
+    private RadioButton roundTipRadioButton;
+    private RadioButton roundTotalRadioButton;
+    private Spinner splitSpinner;
+    private TextView perPersonLabel;
+    private TextView perPersonTextView;
+    private Button   applyButton;
+
+    // define the SharedPreferences object
+    private SharedPreferences savedValues;
+
+    // define instance variables that should be saved
+    private String billAmountString = "";
+    private float tipPercent = .15f;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // get references to the widgets
+        billAmountEditText = (EditText) findViewById(R.id.billAmountEditText);
+        percentTextView = (TextView) findViewById(R.id.percentTextView);
+        percentUpButton = (Button) findViewById(R.id.percentUpButton);
+        percentDownButton = (Button) findViewById(R.id.percentDownButton);
+        tipTextView = (TextView) findViewById(R.id.tipTextView);
+        totalTextView = (TextView) findViewById(R.id.totalTextView);
+        roundNoneRadioButton = (RadioButton)findViewById(R.id.roundNoneRadioButton);
+        roundTipRadioButton = (RadioButton)findViewById(R.id.roundTipRadioButton);
+        roundTotalRadioButton = (RadioButton)findViewById(R.id.roundTotalRadioButton);
+        splitSpinner = (Spinner)findViewById(R.id.splitSpinner);
+        perPersonLabel = (TextView)findViewById(R.id.percentLabel);
+        perPersonTextView = (TextView)findViewById(R.id.perPersonTextView);
+        applyButton = (Button) findViewById(R.id.applyButton);
+
+        //set array adapter for a spinner
+        ArrayAdapter<CharSequence>adapter=ArrayAdapter.createFromResource(
+                this, R.array.split_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        splitSpinner.setAdapter(adapter);
+        // set the listeners
+        billAmountEditText.setOnEditorActionListener(this);
+        percentUpButton.setOnClickListener(this);
+        percentDownButton.setOnClickListener(this);
+        applyButton.setOnClickListener(this);
+
+        // get SharedPreferences object
+        savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
+    }
+
+    @Override
+    public void onPause() {
+        // save the instance variables
+        Editor editor = savedValues.edit();
+        editor.putString("billAmountString", billAmountString);
+        editor.putFloat("tipPercent", tipPercent);
+        editor.commit();
+
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // get the instance variables
+        billAmountString = savedValues.getString("billAmountString", "");
+        tipPercent = savedValues.getFloat("tipPercent", 0.15f);
+
+        // set the bill amount on its widget
+        billAmountEditText.setText(billAmountString);
+
+        // calculate and display
+        calculateAndDisplay();
+    }
+
+    public void calculateAndDisplay() {
+
+        // get the bill amount
+        billAmountString = billAmountEditText.getText().toString();
+        float billAmount;
+        if (billAmountString.equals("")) {
+            billAmount = 0;
+        }
+        else {
+            billAmount = Float.parseFloat(billAmountString);
+        }
+
+        // calculate tip and total
+        float tipAmount = 0;
+        float totalAmount = 0;
+
+        if(roundNoneRadioButton.isChecked())
+        {
+            tipAmount = billAmount * tipPercent;
+            totalAmount = billAmount + tipAmount;
+        }
+        else if(roundTipRadioButton.isChecked())
+        {
+            tipAmount = StrictMath.round(billAmount * tipPercent);
+            totalAmount = billAmount+tipAmount;
+        }
+        else if(roundTotalRadioButton.isChecked())
+        {
+            float tipNotRounded = billAmount * tipPercent;
+            totalAmount = StrictMath.round(billAmount + tipNotRounded);
+            tipAmount = totalAmount - billAmount;
+        }
+
+
+        // display the other results with formatting
+        NumberFormat currency = NumberFormat.getCurrencyInstance();
+        tipTextView.setText(currency.format(tipAmount));
+        totalTextView.setText(currency.format(totalAmount));
+
+        NumberFormat percent = NumberFormat.getPercentInstance();
+        percentTextView.setText(percent.format(tipPercent));
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE ||
+                actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
+            calculateAndDisplay();
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.percentDownButton:
+                tipPercent = tipPercent - .01f;
+                calculateAndDisplay();
+                roundNoneRadioButton.setChecked(true);
+                break;
+            case R.id.percentUpButton:
+                tipPercent = tipPercent + .01f;
+                calculateAndDisplay();
+                roundNoneRadioButton.setChecked(true);
+                break;
+            case R.id.applyButton:
+                calculateAndDisplay();
+                break;
+        }
+    }
+}
+
+
+
+<resources>
+    <string name="app_name">Assignment5_seed_application</string>
+
+    <string name="title_activity_tip_calculator">Tip Calculator</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="bill_amount_label">Bill Amount</string>
+    <string name="bill_amount"></string>
+
+    <string name="tip_percent_label">Percent</string>
+    <string name="tip_percent">15%</string>
+    <string name="increase">+</string>
+    <string name="decrease">-</string>
+
+    <string name="tip_amount_label">Tip</string>
+    <string name="tip_amount">$0.00</string>
+
+    <string name="total_amount_label">Total</string>
+    <string name="total_amount">$0.00</string>
+
+    <string name="rounding">Rounding</string>
+
+    <string name="apply">Apply</string>
+
+    <string name="none"></string>
+    <string name="tip">Tip</string>
+    <string name="total">Total</string>
+
+    <string name="split_label">Split Bill?</string>
+    <string-array name="split_array">
+        <item>No</item>
+        <item>2 ways</item>
+        <item>3 ways</item>
+        <item>4 ways</item>a
+    </string-array>
+
+    <string name="split_amount_label">Per Person</string>
+    <string name="split_amount">$0.00</string>
+</resources>
