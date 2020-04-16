@@ -1,0 +1,532 @@
+1. /menu/activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_settings"
+        android:title="@string/menu_settings"
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="ifRoom" />
+    <item android:id="@+id/menu_about"
+        android:title="@string/menu_about"
+        android:icon="@drawable/ic_about"
+        app:showAsAction="ifRoom"/>
+</menu>
+
+1.1 title: specify the text for the item
+1.2. icon: specify the icon for the item
+1.3. showAsAction: specify whether the item is hown on the action bar. Typically, this attribute is set to a value of "always", "never", or "ifRoom"
+
+2. String
+<string name="menu_about">About</string>
+
+3. Methods in Java file
+
+@Override
+public boolean onCreateOptionsMenu(Menu menu){
+    getMenuInflater().inflate(R.menu.activity_main, menu);
+    return true;
+}
+
+@Override
+public boolean onOptionsItemSelected(MenuItem item){
+    switch (item.getItemId()){
+        case R.id.menu_settings:
+            Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+            return true;
+        case R.id.menu_about:
+            Toast.makeText(this, "About", Toast.LENGTH_SHORT).show();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+    }
+}
+
+4. styles.xml
+android:Theme.Holo.Light.DarkActionBar
+
+5. Activity_about.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AboutActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/about"/>
+</RelativeLayout>
+
+6. AboutActivity.java
+package com.example.lecture12;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+public class AboutActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_about);
+    }
+}
+
+7. SettingsActivity.java
+package com.example.lecture12;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+public class SettingsActivity extends Activity{
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment())
+                .commit();
+    }
+}
+
+8. Preferences.xml
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="pref_remember_percent"
+        android:title="@string/remember_percent_title"
+        android:summary="@string/remember_percent_summary"
+        android:defaultValue="true"/>
+    <ListPreference
+        android:key="pref_rounding"
+        android:title="@string/rounding_title"
+        android:summary="@string/rounding_summary"
+        android:dialogTitle="@string/rounding_title"
+        android:entries="@array/rounding_keys"
+        android:entryValues="@array/rounding_values"
+        android:defaultValue="0"/>
+</PreferenceScreen>
+
+9. New Strings.xml file
+<resources>
+    <string name="app_name">Lecture12</string>
+
+    <string name="title_activity_tip_calculator">Tip Calculator</string>
+
+    <string name="bill_amount_label">Bill Amount</string>
+    <string name="bill_amount"></string>
+
+    <string name="tip_percent_label">Percent</string>
+    <string name="tip_percent">15%</string>
+    <string name="increase">+</string>
+    <string name="decrease">-</string>
+
+    <string name="tip_amount_label">Tip</string>
+    <string name="tip_amount">$0.00</string>
+
+    <string name="total_amount_label">Total</string>
+    <string name="total_amount">$0.00</string>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
+
+    <string name="remember_percent_title">Remember Tip Percent</string>
+    <string name="remember_percent_summary">Remembers the tip percent for the most recent calculation.</string>
+
+    <string name="rounding_title">Rounding?</string>
+    <string name="rounding_summary">Sets the rounding option for the calculation.</string>
+    <string-array name="rounding_keys">
+        <item >None</item>
+        <item >Tip</item>
+        <item >Total</item>
+    </string-array>
+    <string-array name="rounding_values">
+        <item >0</item>
+        <item >1</item>
+        <item >2</item>
+    </string-array>
+    <string name="title_activity_about">About</string>
+    <string name="about">This version of the Tip Calculator app calculates all tips on the post-tax total for the bill.</string>
+</resources>
+
+10. New activity_main.xml in the layout folder
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp" >
+
+    <!-- The bill amount -->
+
+    <TextView
+        android:id="@+id/billAmountLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/bill_amount_label"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/billAmountEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/billAmountLabel"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/billAmountLabel"
+        android:ems="8"
+        android:inputType="numberDecimal"
+        android:text="@string/bill_amount"
+        android:textSize="20sp" >
+
+        <requestFocus />
+    </EditText>
+
+    <!-- The tip percent -->
+
+    <TextView
+        android:id="@+id/percentLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/billAmountLabel"
+        android:layout_below="@+id/billAmountLabel"
+        android:padding="10dp"
+        android:text="@string/tip_percent_label"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/percentTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/percentLabel"
+        android:layout_alignLeft="@+id/billAmountEditText"
+        android:padding="5dp"
+        android:text="@string/tip_percent"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/percentDownButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignBaseline="@+id/percentTextView"
+        android:layout_marginLeft="25dp"
+        android:layout_toRightOf="@+id/percentTextView"
+        android:text="@string/decrease"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/percentUpButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignBaseline="@+id/percentDownButton"
+        android:layout_toRightOf="@+id/percentDownButton"
+        android:text="@string/increase"
+        android:textSize="20sp" />
+
+    <!-- the tip amount -->
+
+    <TextView
+        android:id="@+id/tipLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/percentLabel"
+        android:layout_below="@+id/percentLabel"
+        android:padding="10dp"
+        android:text="@string/tip_amount_label"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tipTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tipLabel"
+        android:layout_alignLeft="@id/billAmountEditText"
+        android:padding="5dp"
+        android:text="@string/tip_amount"
+        android:textSize="20sp" />
+
+    <!-- the total -->
+
+    <TextView
+        android:id="@+id/totalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tipLabel"
+        android:layout_below="@+id/tipLabel"
+        android:padding="10dp"
+        android:text="@string/total_amount_label"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/totalTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/totalLabel"
+        android:layout_alignLeft="@+id/tipTextView"
+        android:padding="5dp"
+        android:text="@string/total_amount"
+        android:textSize="20sp" />
+
+    <!-- the separator line -->
+
+    <View
+        android:id="@+id/separatorLine"
+        android:layout_alignLeft="@+id/totalLabel"
+        android:layout_below="@+id/totalLabel"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:padding="5dp"
+        android:background="@android:color/black" />
+
+</RelativeLayout>
+
+11. SettingsFragment.Java file
+package com.example.lecture12;
+
+import android.os.Bundle;
+import android.preference.PreferenceFragment;
+
+public class SettingsFragment extends PreferenceFragment{
+    @Override
+    public void onCreate(Bundle savedIsntanceState){
+        super.onCreate(savedIsntanceState);
+
+        addPreferencesFromResource(R.xml.preferences);
+    }
+}
+
+12. New Java file
+package com.example.lecture12;
+
+import java.text.NumberFormat;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.widget.Toast;
+
+public class MainActivity extends Activity
+        implements OnEditorActionListener, OnClickListener {
+
+    // define variables for the widgets
+    private EditText billAmountEditText;
+    private TextView percentTextView;
+    private Button   percentUpButton;
+    private Button   percentDownButton;
+    private TextView tipTextView;
+    private TextView totalTextView;
+
+    // define instance variables that should be saved
+    private String billAmountString = "";
+    private float tipPercent = .15f;
+
+    //define rounding constants
+    private final int ROUND_NONE=0;
+    private final int ROUND_TIP=1;
+    private final int ROUND_TOTAL=2;
+
+    //set up preferences
+    private SharedPreferences prefs;
+    private boolean rememberTipPercent=true;
+    private int rounding=ROUND_NONE;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // get references to the widgets
+        billAmountEditText = (EditText) findViewById(R.id.billAmountEditText);
+        percentTextView = (TextView) findViewById(R.id.percentTextView);
+        percentUpButton = (Button) findViewById(R.id.percentUpButton);
+        percentDownButton = (Button) findViewById(R.id.percentDownButton);
+        tipTextView = (TextView) findViewById(R.id.tipTextView);
+        totalTextView = (TextView) findViewById(R.id.totalTextView);
+
+        // set the listeners
+        billAmountEditText.setOnEditorActionListener(this);
+        percentUpButton.setOnClickListener(this);
+        percentDownButton.setOnClickListener(this);
+
+        //set the default values for the preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        //get default SharedPreference object
+        prefs=PreferenceManager.getDefaultSharedPreferences(this);
+
+    }
+
+    @Override
+    public void onPause() {
+        // save the instance variables
+        Editor editor = prefs.edit();
+        editor.putString("billAmountString", billAmountString);
+        editor.putFloat("tipPercent", tipPercent);
+        editor.commit();
+
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // get the preferences
+        rememberTipPercent=prefs.getBoolean("pref_forget_percent", true);
+        rounding = Integer.parseInt(prefs.getString("pref_roudning", "0"));
+
+        //get the instance variables
+        billAmountString = prefs.getString("billAmountString", "");
+        if(rememberTipPercent){
+            tipPercent=prefs.getFloat("tipPercent", 0.15f);
+        }
+        else{
+            tipPercent=0.15f;
+        }
+
+        // set the bill amount on its widget
+        billAmountEditText.setText(billAmountString);
+
+        // calculate and display
+        calculateAndDisplay();
+    }
+
+    public void calculateAndDisplay() {
+
+        // get the bill amount
+        billAmountString = billAmountEditText.getText().toString();
+        float billAmount;
+        if (billAmountString.equals("")) {
+            billAmount = 0;
+        }
+        else {
+            billAmount = Float.parseFloat(billAmountString);
+        }
+
+        // calculate tip and total
+        float tipAmount=0;
+        float totalAmount = 0;
+        float tipPercentToDisplay=0;
+
+        if(rounding==ROUND_NONE){
+            tipAmount = billAmount * tipPercent;
+            totalAmount = billAmount + tipAmount;
+            tipPercentToDisplay = tipPercent;
+
+        }
+
+        else if (rounding == ROUND_TIP) {
+            tipAmount = StrictMath.round(billAmount * tipPercent);
+            totalAmount = billAmount + tipAmount;
+            tipPercentToDisplay = tipAmount / billAmount;
+        }
+
+        else if (rounding == ROUND_TOTAL) {
+            float tipNotRounded = billAmount * tipPercent;
+            totalAmount = StrictMath.round(billAmount + tipNotRounded);
+            tipAmount = totalAmount - billAmount;
+            tipPercentToDisplay = tipAmount / billAmount;
+        }
+
+        // display the other results with formatting
+        NumberFormat currency = NumberFormat.getCurrencyInstance();
+        tipTextView.setText(currency.format(tipAmount));
+        totalTextView.setText(currency.format(totalAmount));
+
+        NumberFormat percent = NumberFormat.getPercentInstance();
+        percentTextView.setText(percent.format(tipPercentToDisplay));
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        int keyCode = -1;
+        if (event != null) {
+            keyCode = event.getKeyCode();
+        }
+        if (actionId == EditorInfo.IME_ACTION_DONE ||
+                actionId == EditorInfo.IME_ACTION_UNSPECIFIED ||
+                keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
+                keyCode == KeyEvent.KEYCODE_ENTER) {
+            calculateAndDisplay();
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.percentDownButton:
+                tipPercent = tipPercent - .01f;
+                calculateAndDisplay();
+                break;
+            case R.id.percentUpButton:
+                tipPercent = tipPercent + .01f;
+                calculateAndDisplay();
+                break;
+        }
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.menu_settings:
+                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+                return true;
+            case R.id.menu_about:
+                startActivity(new Intent(getApplicationContext(), AboutActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+}
+
+13. AndroidManifest file
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.lecture12">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.lecture12.SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
+        <activity android:name="com.example.lecture12.AboutActivity"
+            android:label="@string/title_activity_about"></activity>
+    </application>
+
+</manifest>
